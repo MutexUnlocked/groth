@@ -1,0 +1,9 @@
+flag provided but not defined: -conf
+RtmpServer version[0.0.1]
+Usage: /home/professor/go/bin/server [OPTIONS]
+  -Address string
+    	The address to bind. (default ":1935")
+  -FLV string
+    	Dump FLV into file.
+  -MediaPath string
+    	The media files folder. (default "./medias")
