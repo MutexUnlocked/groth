@@ -162,3 +162,4 @@ install:
 	cp libgroth.so /usr/local/lib
 	mkdir -p /usr/local/include/groth
 	cp $(HEADERS) /usr/local/include/groth
+	cp src/ed.c /usr/local/include/groth

@@ -627,7 +627,7 @@ void Verifier_toom::calculate_c(Cipher_elg& c, vector<vector<Cipher_elg>* >* enc
 	chal_temp=to_ZZ(1);
 	c=Cipher_elg(curve_zeropoint(),curve_zeropoint(),H.get_mod());
 	
-	//#pragma omp parallel for num_threads(num_threads) if(parallel)
+	#pragma omp parallel for num_threads(num_threads) if(parallel)
 	for(i=0; i<m ; i++){
 		//par_challenge(chal_x2, ord, n, v_chal);
 		for(j=0; j<n; j++){

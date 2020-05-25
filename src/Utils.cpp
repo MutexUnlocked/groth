@@ -23,7 +23,7 @@ extern G_q G;
 
 static bool kIsInit = false;
 
-static vector<long> num(8);
+extern vector<long> num(8);
 
 void init_private_key(ElGammal* elgammal, int key_id) {
 	ZZ secret;
