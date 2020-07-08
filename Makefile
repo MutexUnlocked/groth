@@ -6,10 +6,10 @@
 export LD_LIBRARY_PATH=/usr/local/lib/
 APP=shuffle
 ORIGINALAPP=test
-LIBAPP=libgroth.so
-SECOVID_APP=secovid_shuffle
-SECOVID_SERVER_APP=shuffle_server
-SECOVID_CLIENT_APP=shuffle_client
+LIBAPP=libshuffle.so
+VUVUZELA_APP=vuvuzela_shuffle
+VUVUZELA_SERVER_APP=shuffle_server
+VUVUZELA_CLIENT_APP=shuffle_client
 
 # options
 DATE  = $(shell /bin/date +%d.%m.%y)
@@ -109,7 +109,6 @@ LIBOBJECTS = $(addprefix $(OBJDIR)/, $(addsuffix .o, $(LIBFILES)))
 TESTDEPENDS = $(addprefix $(OBJDIR)/, $(addsuffix .d, $(TESTFILES)))
 ORIGINALDEPENDS = $(addprefix $(OBJDIR)/, $(addsuffix .d, $(ORIGINAL)))
 LIBDEPENDS = $(addprefix $(OBJDIR)/, $(addsuffix .d, $(LIBFILES)))
-HEADERS = $(shell echo src/*.h)
 
 #--- how to create object and dependencie files from sources ---
 $(OBJDIR)/%.o:%.cpp
@@ -146,6 +145,10 @@ $(OBJDIR):
 	@mkdir -p $@
 	@chmod 775 $@
 
+install:
+	cp libshuffle.so /usr/local/lib
+	mkdir -p /usr/local/include/shuffle
+	cp src/*.h /usr/local/include/shuffle
 
 .PHONY: clean
 clean:
@@ -157,9 +160,3 @@ clean:
 .PHONY: help
 help:
 	@sed -n '/^##/s/## //p' Makefile
-
-install:
-	cp libgroth.so /usr/local/lib
-	mkdir -p /usr/local/include/groth
-	cp $(HEADERS) /usr/local/include/groth
-	cp src/ed.c /usr/local/include/groth

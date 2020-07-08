@@ -141,7 +141,7 @@ void Functions::createCipher(vector<vector<ZZ> >* secrets, int m, int n, int N, 
 	}
 
 	//PARALLELIZE
-	//#pragma omp parallel for collapse(2) num_threads(num_threads) if(parallel)
+	#pragma omp parallel for collapse(2) num_threads(num_threads) if(parallel)
 	for (long i=0; i<m; i++){
 		for (long j = 0; j <n; j++){
 			ZZ ran_2 = RandomBnd(ord);

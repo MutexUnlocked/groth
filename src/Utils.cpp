@@ -23,7 +23,7 @@ extern G_q G;
 
 static bool kIsInit = false;
 
-extern vector<long> num(8);
+static vector<long> num(8);
 
 void init_private_key(ElGammal* elgammal, int key_id) {
 	ZZ secret;
@@ -356,7 +356,6 @@ void test() {
 	}
 	
 	time_t begin = time(NULL);
-    cout << "GOING TO ENCRYPT" << endl;
 	CipherTable* ciphers = (CipherTable*) encrypt((void**) secrets, SECRET_SIZE, m * n, 1);
 	time_t enc_time = time(NULL);
 	cout << "ecryption time: " << enc_time - begin << endl; 
