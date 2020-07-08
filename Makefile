@@ -146,10 +146,9 @@ $(OBJDIR):
 	@chmod 775 $@
 
 install:
-	cp libshuffle.so /usr/local/lib
 	mkdir -p /usr/local/include/shuffle
+	cp libshuffle.so /usr/local/lib
 	cp src/*.h /usr/local/include/shuffle
-
 .PHONY: clean
 clean:
 	@rm -rf $(OBJDIR) $(LCOVDIR) $(APP)
