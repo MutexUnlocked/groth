@@ -167,32 +167,23 @@ Groth::Wrap(vector<string> msgs, int msgsize, int keyindex){
 vector<string> Groth::UnWrap(std::tuple<vector<string>,
           vector<string>, string> ctxs_nonces_ciphers, int keyindex){
     vector<string> decgroup;
-      vector<string> plaintext;
-    /*  this->Decrypt(std::get<2>(ctxs_nonces_ciphers), keyindex, decgroup);
+    vector<string> plaintext;
+     this->Decrypt(std::get<2>(ctxs_nonces_ciphers), keyindex, decgroup);
 
     for(int i = 0; i < std::get<0>(ctxs_nonces_ciphers).size(); i++){
-        bytes tmpdec{std::get<0>(ctxs_nonces_ciphers)[i].cbegin(),
-            std::get<0>(ctxs_nonces_ciphers)[i].cend()};
+        string tmpdec = std::get<0>(ctxs_nonces_ciphers)[i];
 
         unsigned char out[crypto_hash_sha256_BYTES];
         auto rez = reinterpret_cast<unsigned char*>(const_cast<char*>(decgroup[i].c_str()));
         crypto_hash_sha256(out, rez, sizeof(rez)/sizeof(rez[0]));
+        unsigned char* nonce = string_to_uchar_arr(std::get<1>(ctxs_nonces_ciphers)[i]);
+        unsigned char decrypted[MESSAGE_LEN];
 
-        bytes_protected key;
-        for(auto x : out){
-            key.push_back(x);
-        }
-        secretbox<>::key_type keyty;
-        keyty.keydata_ = key;
-        secretbox<> sc(keyty);
-
-        tmpdec = sc.decrypt(tmpdec, std::get<1>(ctxs_nonces_ciphers)[i]);
-      
-        std::string tt{tmpdec.cbegin(), tmpdec.cend()};
+        crypto_secretbox_open_easy(decrypted, string_to_uchar_arr(tmpdec),CIPHTERTEXT_LEN, nonce, out);
         
-        plaintext.push_back(tt);
+        plaintext.push_back(uchar_arr_to_string(decrypted));
     }
-    cout << "DEBUG: MADE IT UNWRAP DONE" << endl;*/
+    cout << "DEBUG: MADE IT UNWRAP DONE" << endl;
     return plaintext;
 }
 
