@@ -26,6 +26,20 @@ using namespace std;
 using namespace sodium;
 
 #define CIPHERTEXT_SIZE CURVE_POINT_BYTESIZE*2
+#define MESSAGE_LEN 32
+#define CIPHTERTEXT_LEN (MESSAGE_LEN + crypto_secretbox_MACBYTES)
+
+inline string uchar_arr_to_string(unsigned char* arr){
+   return  std::string(reinterpret_cast<char*>(arr));
+}
+
+inline unsigned char* string_to_uchar_arr(string str){
+    unsigned char* arr = (unsigned char*) malloc(sizeof(char) * str.length());
+    for(int i = 0; i < str.length(); i++){
+        arr[i] = str[i];
+    }
+    return arr;
+}
 
 inline void g_encrypt(char* secrets, int secretlen, int keyindex,
         string &ciphers, vector<string> &groupelts, int*elem_size){
@@ -102,16 +116,16 @@ class Groth{
             string &ciphersR, vector<string> &groupelts, int *elemsize);
         void Decrypt(string ciphers,  int keyindex,
                 vector<string> &groupelts);
-std::tuple<vector<string>, vector<secretbox<>::nonce_type>, string>
+std::tuple<vector<string>, vector<string>, string>
         Wrap(vector<string> msgs, int msgsize, int keyindex);
         
         vector<string> UnWrap(std::tuple<vector<string>,
-        vector<secretbox<>::nonce_type>, string> ctxs_nonces_ciphers, int keyindex);
+        vector<string>, string> ctxs_nonces_ciphers, int keyindex);
         void Test();
         void Test2();
 };
 
-std::tuple<vector<string>, vector<secretbox<>::nonce_type>, string>
+std::tuple<vector<string>, vector<string>, string>
 Groth::Wrap(vector<string> msgs, int msgsize, int keyindex){
     int n = msgs.size() / msgsize;
    // int osize = msgsize + (CURVE_POINT_BYTESIZE * 2);
@@ -126,52 +140,35 @@ Groth::Wrap(vector<string> msgs, int msgsize, int keyindex){
     string ciphersR;
     vector<string> groupelts;
     vector<string> wrapped;
-    vector<secretbox<>::nonce_type> nonces;
+    vector<string> nonces;
    // vector<string> decgroup;
     int* elem;
     this->Encrypt(seeds, 32, keyindex, ciphersR, groupelts, elem);
     //int i = 0;
     for(int i = 0; i < n; i++){
         cout << "I = " << i << endl;
-        std::string enctmp = msgs[i];
-        bytes tmpenc{enctmp.cbegin(), enctmp.cend()};
-
-        //std::string tmpip = mixers[i].first;
+   
         unsigned char out[crypto_hash_sha256_BYTES];
+        unsigned char nonce[crypto_secretbox_NONCEBYTES];
+        unsigned char ciphertext[CIPHTERTEXT_LEN];
         auto rez = reinterpret_cast<unsigned char*>(const_cast<char*>(groupelts[i].c_str()));
         crypto_hash_sha256(out, rez, sizeof(rez)/sizeof(rez[0]));
-        //TODO: Stop using sodiumwarp and just use libsodium raw
-        bytes_protected key;
-        for(auto x : out){
-            key.push_back(x);
-        }
-        cout << "KEY = " << sizeof(out)/sizeof(out[0]) << endl;
-        secretbox<>::key_type keyty;
-        cout << "OG KEY = " << keyty.keydata_.size() << endl;
-        keyty.keydata_.clear();
-        keyty.keydata_.insert(keyty.keydata_.end(), key.begin(), key.end());
-        secretbox<> sc(keyty);
-        secretbox<>::nonce_type nonce{};
-        tmpenc = sc.encrypt(tmpenc, nonce);
-      
-        std::string tt{tmpenc.cbegin(), tmpenc.cend()};
-        //tt += tmpip;   // Address
-        //tt += "CUTHERE";
-        //tt += std::to_string(tmpip.size()); // Size of ip address
 
-        wrapped.push_back(tt); 
-        nonces.push_back(nonce);
-        //i++;
+        randombytes_buf(nonce, sizeof(nonce));
+        crypto_secretbox_easy(ciphertext, string_to_uchar_arr(msgs[i]), MESSAGE_LEN, nonce, out);
+        wrapped.push_back(uchar_arr_to_string(ciphertext)); 
+        nonces.push_back(uchar_arr_to_string(nonce));
+        
     }
     cout << "DEBUG: MADE IT WRAP DONE" << endl;
     return std::make_tuple(wrapped, nonces, ciphersR);
 }
 
 vector<string> Groth::UnWrap(std::tuple<vector<string>,
-        vector<secretbox<>::nonce_type>, string> ctxs_nonces_ciphers, int keyindex){
+          vector<string>, string> ctxs_nonces_ciphers, int keyindex){
     vector<string> decgroup;
-    vector<string> plaintext;
-    this->Decrypt(std::get<2>(ctxs_nonces_ciphers), keyindex, decgroup);
+      vector<string> plaintext;
+    /*  this->Decrypt(std::get<2>(ctxs_nonces_ciphers), keyindex, decgroup);
 
     for(int i = 0; i < std::get<0>(ctxs_nonces_ciphers).size(); i++){
         bytes tmpdec{std::get<0>(ctxs_nonces_ciphers)[i].cbegin(),
@@ -195,7 +192,7 @@ vector<string> Groth::UnWrap(std::tuple<vector<string>,
         
         plaintext.push_back(tt);
     }
-    cout << "DEBUG: MADE IT UNWRAP DONE" << endl;
+    cout << "DEBUG: MADE IT UNWRAP DONE" << endl;*/
     return plaintext;
 }
 

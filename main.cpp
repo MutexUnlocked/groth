@@ -1,6 +1,9 @@
 #include <shuffle/Utils.h>
+#include "interface.hpp"
 
 auto main() -> int{
-    test();
+    Groth g;
+    g.Test2();
     return 0;
 }
+
