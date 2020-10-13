@@ -41,6 +41,20 @@ inline unsigned char* string_to_uchar_arr(string str){
     return arr;
 }
 
+inline void g_shuffle(char* ciphers, int num_of_elements, int keyindex,
+        void *cached_shuffle, char* shuffled_ciphers, int* permutation){
+    auto elgammal = create_pub_key(keyindex);
+    
+	int shuffled_ciphers_len;
+	int permutation_len;
+
+    cached_shuffle = shuffle_internal(elgammal, ciphers, strlen(ciphers),num_of_elements ,&shuffled_ciphers, 
+            &shuffled_ciphers_len, &permutation, &permutation_len);
+
+
+    delete_key(elgammal);
+}
+
 inline void g_encrypt(char* secrets, int secretlen, int keyindex,
         string &ciphers, vector<string> &groupelts, int*elem_size){
    int num_sercrets = strlen(secrets) / secretlen;
@@ -125,6 +139,25 @@ std::tuple<vector<string>, vector<string>, string>
         void Test2();
 };
 
+std::pair<char*, int*> Shuffle(string ciphers, int keyindex){
+    char* shuffled_ciphers;
+    char* cached_shuffle;
+    int* perm;
+
+    ElGammal* elgammal = (ElGammal*) create_pub_key(keyindex);
+    
+    CipherTable* ciphertable = (CipherTable*) parse_ciphers(&ciphers[0],
+            ciphers.size(), elgammal);
+
+    int rows = ciphertable->rows();
+    int cols = ciphertable->cols();
+    int num_of_ciphers = rows * cols;
+
+    string arr[num_of_ciphers];
+    g_shuffle(&ciphers[0], num_of_ciphers, keyindex, cached_shuffle, shuffled_ciphers, perm);
+    return std::make_pair(shuffled_ciphers, perm);
+
+}
 std::tuple<vector<string>, vector<string>, string>
 Groth::Wrap(vector<string> msgs, int msgsize, int keyindex){
     int n = msgs.size() / msgsize;
